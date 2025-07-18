@@ -1,0 +1,29 @@
+[gd_scene load_steps=6 format=3 uid="uid://bmh8rg1rjvypn"]
+
+[ext_resource type="Script" uid="uid://da4a3ecdonj0f" path="res://Knight3D.gd" id="1_v1qjh"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_am7b1"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_op8ku"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_nxbc4"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_8i148"]
+
+[node name="Knight3D" type="CharacterBody3D" node_paths=PackedStringArray("mesh", "areaPiece")]
+script = ExtResource("1_v1qjh")
+mesh = NodePath("MeshInstance3D")
+areaPiece = NodePath("Area3D")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("SphereMesh_am7b1")
+surface_material_override/0 = SubResource("StandardMaterial3D_op8ku")
+
+[node name="Area3D" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, 0, 0, 0)
+shape = SubResource("SphereShape3D_nxbc4")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_8i148")

@@ -1,0 +1,29 @@
+[gd_scene load_steps=6 format=3 uid="uid://bmp8e1yeo610k"]
+
+[ext_resource type="Script" uid="uid://hrnut7ymwk3l" path="res://Rook3D.gd" id="1_nluod"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_nluod"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nluod"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_saeu3"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_nluod"]
+
+[node name="Rook3D" type="CharacterBody3D" node_paths=PackedStringArray("mesh", "areaPiece")]
+script = ExtResource("1_nluod")
+mesh = NodePath("MeshInstance3D")
+areaPiece = NodePath("Area3D")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_nluod")
+surface_material_override/0 = SubResource("StandardMaterial3D_nluod")
+
+[node name="Area3D" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, 0, 0, 0)
+shape = SubResource("BoxShape3D_saeu3")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_nluod")

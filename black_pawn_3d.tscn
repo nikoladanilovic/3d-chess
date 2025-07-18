@@ -1,0 +1,30 @@
+[gd_scene load_steps=6 format=3 uid="uid://dkgn5pmt01ovg"]
+
+[ext_resource type="PackedScene" uid="uid://cdtgrqhsnj4b5" path="res://pawn3D.glb" id="1_lr1ob"]
+[ext_resource type="Script" uid="uid://dr08sm0n28on0" path="res://BlackPawn3D.gd" id="1_oiap0"]
+[ext_resource type="ArrayMesh" uid="uid://cfy36fvs2aqwv" path="res://pawn3D.obj" id="2_oiap0"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_40ros"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_bm5o3"]
+
+[node name="BlackPawn3D" type="CharacterBody3D" node_paths=PackedStringArray("mesh", "areaPiece")]
+script = ExtResource("1_oiap0")
+mesh = NodePath("MeshInstance3D")
+areaPiece = NodePath("Area3D")
+
+[node name="pawn3D" parent="." instance=ExtResource("1_lr1ob")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_40ros")
+
+[node name="Area3D" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, 0, 0, 0)
+shape = SubResource("SphereShape3D_bm5o3")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 0, 0, 0)
+mesh = ExtResource("2_oiap0")

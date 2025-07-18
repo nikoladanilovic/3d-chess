@@ -1,0 +1,29 @@
+[gd_scene load_steps=6 format=3 uid="uid://cdbpyqtfp6qao"]
+
+[ext_resource type="Script" uid="uid://bpislby202o6b" path="res://Queen3D.gd" id="1_xxclh"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_eu0am"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xxclh"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_78mjq"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_b8c64"]
+
+[node name="Queen3D" type="CharacterBody3D" node_paths=PackedStringArray("mesh", "areaPiece")]
+script = ExtResource("1_xxclh")
+mesh = NodePath("MeshInstance3D")
+areaPiece = NodePath("Area3D")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_eu0am")
+surface_material_override/0 = SubResource("StandardMaterial3D_xxclh")
+
+[node name="Area3D" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_78mjq")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_b8c64")

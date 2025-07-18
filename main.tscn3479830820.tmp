@@ -1,0 +1,23 @@
+[gd_scene load_steps=5 format=3 uid="uid://cgx5201sqnfhb"]
+
+[ext_resource type="Script" uid="uid://cisl3a1g86jum" path="res://grid_root.gd" id="1_ig7tw"]
+[ext_resource type="Script" uid="uid://b51nk0n7wsivj" path="res://camera_pivot.gd" id="2_h2yge"]
+[ext_resource type="Script" uid="uid://bnnmjh566dlc0" path="res://camera_3d.gd" id="3_h2yge"]
+
+[sub_resource type="ImmediateMesh" id="ImmediateMesh_0xm2m"]
+
+[node name="GridRoot" type="Node3D"]
+script = ExtResource("1_ig7tw")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("ImmediateMesh_0xm2m")
+
+[node name="CameraPivot" type="Node3D" parent="."]
+script = ExtResource("2_h2yge")
+boom = NodePath("CameraBoom")
+
+[node name="CameraBoom" type="Node3D" parent="CameraPivot"]
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot/CameraBoom"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.02639)
+script = ExtResource("3_h2yge")
