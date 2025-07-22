@@ -8,6 +8,7 @@ A unique 3D chess-inspired strategy game built using **Godot 4**, set inside a h
 - Players move pieces along X, Y, and Z axes.
 - The cube is hollow — all gameplay takes place on the surfaces and edges.
 - Rules and piece movements are inspired by chess, but adapted to a 3D environment.
+- It is local. It takes two players to play this game but for now it can be played on one computer.
 
 ## 🎮 Features
 
