@@ -30,11 +30,8 @@ A unique 3D chess-inspired strategy game built using **Godot 4**, set inside a h
 
 ### Prerequisites
 
-- [Godot 4.x](https://godotengine.org/download) installed
+- [Godot 4.x](https://godotengine.org/download) No need to be installed
 
 ### Clone and Run
 
-```bash
-git clone https://github.com/yourusername/3d-chess-cube.git
-cd 3d-chess-cube
-godot .
+- Download executable, and run it, find cloned folder and import it into godot. Then you can run it buy pressing play button in godot engine.
