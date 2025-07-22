@@ -1,5 +1,10 @@
 extends Piece
 
+
+func _ready() -> void:
+	super._ready()
+	self.piece_type = "knight"
+
 var knight_moves_3d := [
 	Vector3i( 2,  1,  0), Vector3i( 2, -1,  0), Vector3i(-2,  1,  0), Vector3i(-2, -1,  0),
 	Vector3i( 1,  2,  0), Vector3i( 1, -2,  0), Vector3i(-1,  2,  0), Vector3i(-1, -2,  0),
@@ -12,12 +17,15 @@ var knight_moves_3d := [
 ]
 
 func get_valid_moves(grid_state: Dictionary) -> Array[Vector3i]:
+	var game_manager = get_node("/root/GridRoot/GameManager")
+	
 	var valid_moves: Array[Vector3i] = []
 	for move in knight_moves_3d:
 		var new_pos = grid_pos + move
 		if is_within_bounds(new_pos):  # Ensure new_pos is inside the 8x8x8 cube
 			if is_empty_or_enemy(grid_state, new_pos):  # Your logic here
-				valid_moves.append(new_pos)
+				if not game_manager.would_be_in_check(grid_state, grid_pos, new_pos, owner_id):
+					valid_moves.append(new_pos)
 	return valid_moves
 
 
@@ -32,5 +40,24 @@ func is_empty_or_enemy(grid_state: Dictionary ,pos: Vector3i) -> bool:
 		return true  # Tile is empty
 	if piece.owner_id != owner_id:
 		create_capture_indicator(pos)
+		return true  # Enemy piece
+	return false  # Same team piece
+	
+func get_valid_moves_without_capture(grid_state: Dictionary, ignore_king_safety := false) -> Array[Vector3i]:
+	var valid_moves: Array[Vector3i] = []
+	for move in knight_moves_3d:
+		var new_pos = grid_pos + move
+		if is_within_bounds(new_pos):  # Ensure new_pos is inside the 8x8x8 cube
+			if is_empty_or_enemy_without_capture(grid_state, new_pos):  # Your logic here
+				valid_moves.append(new_pos)
+	return valid_moves
+
+func is_empty_or_enemy_without_capture(grid_state: Dictionary ,pos: Vector3i) -> bool:
+	if not grid_state.has(pos):
+		return true  # Tile is empty (no piece stored at this position)
+	var piece = grid_state[pos]
+	if piece == null:
+		return true  # Tile is empty
+	if piece.owner_id != owner_id:
 		return true  # Enemy piece
 	return false  # Same team piece

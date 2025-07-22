@@ -11,7 +11,8 @@ var original_color: Color
 @export var areaPiece : Area3D
 var isHelperPiece := false
 var resource_link: Resource
-var capture_character : Array[Node]
+var capture_character : Array[Node] = []
+var piece_type : String = "not king"
 
 signal piece_selected(piece: Node)
 
@@ -52,6 +53,10 @@ func get_valid_moves(grid_state: Dictionary) -> Array[Vector3i]:
 	# To be overridden by specific piece types
 	return []
 	
+func get_valid_moves_without_capture(grid_state: Dictionary, ignore_king_safety := false) -> Array[Vector3i]:
+	# To be overridden by specific piece types
+	return []
+	
 func create_capture_indicator(pos):
 	var capture = capture_scene.instantiate()
 	var green = Color.GREEN
@@ -73,12 +78,12 @@ func _on_capture(capture_block):
 	for temp_piece in game_manager.player1_root.get_children():
 			if temp_piece.original_color == Color.BLUE:
 				game_manager.player1_root.remove_child(temp_piece)
-				game_manager.grid_state[temp_piece.grid_pos] = null
+				game_manager.grid_helper_state[temp_piece.grid_pos] = null
 	
 	for temp_piece in game_manager.player2_root.get_children():
 			if temp_piece.original_color == Color.BLUE:
 				game_manager.player2_root.remove_child(temp_piece)
-				game_manager.grid_state[temp_piece.grid_pos] = null
+				game_manager.grid_helper_state[temp_piece.grid_pos] = null
 
 	# Remove the captured enemy piece from the scene
 	if game_manager.active_player == 1:
@@ -90,15 +95,15 @@ func _on_capture(capture_block):
 	
 	# Remove the green capture indicator
 	get_node("/root/GridRoot").remove_child(capture_block)
-	capture_block.queue_free()
+	#capture_block.queue_free()
 	
 	var selected_piece = game_manager.selected_piece
 	# Delete rest of the capture boxes
 	if selected_piece.capture_character.size() != 0:
 		for capturee in selected_piece.capture_character:
 			get_node("/root/GridRoot").remove_child(capturee)
-			capturee.queue_free()
-		selected_piece.capture_character.clear()
+			#capturee.queue_free()
+		#selected_piece.capture_character.clear()
 
 	# Move the selected piece to the captured piece's position
 	

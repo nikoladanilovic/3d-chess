@@ -8,6 +8,8 @@ extends Node3D
 @onready var queen_scene := preload("res://queen_3d.tscn")
 @onready var king_scene := preload("res://king_3d.tscn")
 @onready var pawn_scene := preload("res://black_pawn_3d.tscn")
+@export var check_notification : CanvasLayer
+@export var check_notification_label : Label
 @export var player1_root : Node3D
 @export var player2_root : Node3D
 @export var cell_size := 1.0
@@ -22,6 +24,8 @@ var active_player := 1  # 1 or 2
 #var grid = []
 var grid_state := {}  # Dictionary<Vector3i, ChessPiece>
 
+var grid_helper_state := {}
+
 """func init_grid():
 	grid.clear()
 	for x in range(8):
@@ -34,6 +38,7 @@ var grid_state := {}  # Dictionary<Vector3i, ChessPiece>
 		grid.append(layer_y)"""
 
 func _ready():
+	
 	#Black player pieces
 	spawn_player_pieces(rook_scene, 1, player1_root, Vector3i(0, 0, 0), Color.BLACK)
 	spawn_player_pieces(rook_scene, 1, player1_root, Vector3i(7, 0, 0), Color.BLACK)
@@ -129,6 +134,14 @@ func spawn_player_pieces(piece_type_scene: Resource, player_id: int, parent: Nod
 
 func end_turn():
 	active_player = 2 if (active_player == 1) else 1
+	if is_checkmate():
+		hide_check_notification()
+		show_checkmate_notification()
+		return
+	if is_king_in_check(grid_state):
+		show_check_notification()
+	else:
+		hide_check_notification()
 	
 func can_control(piece):
 	return piece.owner_id == active_player
@@ -185,6 +198,7 @@ func change_position(piece):
 			piece.piece_selected.disconnect(change_position)
 			player1_root.add_child(piece)
 			player1_pieces.append(piece)
+			grid_state[piece.grid_pos] = piece
 		elif active_player == 2:
 			piece.set_color(Color.RED)
 			piece.cell_size = cell_size
@@ -193,6 +207,7 @@ func change_position(piece):
 			piece.piece_selected.disconnect(change_position)
 			player2_root.add_child(piece)
 			player2_pieces.append(piece)
+			grid_state[piece.grid_pos] = piece
 	
 	#rest of the logic
 	despawn_new_player_piece_positions(piece)
@@ -221,6 +236,7 @@ func spawn_possible_new_positions(original_piece, parent, player_id):
 			piece.move_to_grid(i)
 		piece.piece_selected.connect(change_position)
 		parent.add_child(piece)
+		grid_helper_state[i] = piece
 		#parent.remove_child(piece)
 	
 		
@@ -229,7 +245,7 @@ func despawn_new_player_piece_positions(orig_piece):
 		for temp_piece in player1_root.get_children():
 			if temp_piece.original_color == Color.BLUE:
 				player1_root.remove_child(temp_piece)
-				grid_state[temp_piece.grid_pos] = null
+				grid_helper_state[temp_piece.grid_pos] = null
 		
 		if selected_piece != orig_piece and orig_piece.isHelperPiece == true:
 			player1_root.remove_child(selected_piece)
@@ -242,7 +258,7 @@ func despawn_new_player_piece_positions(orig_piece):
 		for temp_piece in player2_root.get_children():
 			if temp_piece.original_color == Color.BLUE:
 				player2_root.remove_child(temp_piece)
-				grid_state[temp_piece.grid_pos] = null
+				grid_helper_state[temp_piece.grid_pos] = null
 		
 		if selected_piece != orig_piece and orig_piece.isHelperPiece == true:
 			player2_root.remove_child(selected_piece)
@@ -250,11 +266,12 @@ func despawn_new_player_piece_positions(orig_piece):
 			grid_state[selected_piece.grid_pos] = null
 			orig_piece.isHelperPiece = false
 	
-	# Remove the green capture indicator
+	# Remove the green capture indicatorS (it should be capture_characters but what a hell)
 	if selected_piece.capture_character.size() != 0:
 		for capturee in selected_piece.capture_character:
+			print("This shouldnt be here ", grid_state[capturee.grid_pos])
 			get_node("/root/GridRoot").remove_child(capturee)
-			capturee.queue_free()
+			#capturee.queue_free()
 			
 
 func spawn_new_player_piece_positions(player_id, parent, color):
@@ -265,3 +282,91 @@ func spawn_new_player_piece_positions(player_id, parent, color):
 		grid_state[temp_piece.grid_pos] = temp_piece
 		temp_piece.piece_selected.connect(_on_piece_selected)
 		parent.add_child(temp_piece)
+
+# Inside your main script or GameManager
+func show_check_notification():
+	if active_player == 1:
+		check_notification_label.text = "Black is in Check!"
+	elif active_player == 2:
+		check_notification_label.text = "Red is in Check!"
+	check_notification_label.visible = true
+	
+func hide_check_notification():
+	check_notification_label.visible = false
+	
+func is_king_in_check(grid_state_temp : Dictionary) -> bool:
+	var king_position = null
+
+	# Step 1: Find the current team's king
+	for position in grid_state_temp.keys():
+		var piece = grid_state_temp[position]
+		if piece != null and piece.piece_type == "king" and piece.owner_id == active_player:
+			king_position = position
+			break
+
+	if king_position == null:
+		push_error("King not found for team %d" % active_player)
+		return false
+
+	# Step 2: Loop through enemy pieces to see if any can move to king's position
+	var enemy_team = 1 if active_player == 2 else 2
+
+	for position in grid_state_temp.keys():
+		var piece = grid_state_temp[position]
+		if piece != null and piece.owner_id == enemy_team:
+			var moves = piece.get_valid_moves_without_capture(grid_state_temp)
+			if king_position in moves:
+				return true  # King is in check
+	
+	return false  # No threats found
+
+"""FIX THIS"""
+func would_be_in_check(grid_statee: Dictionary, from: Vector3i, to: Vector3i, owner_id: int) -> bool:
+	var moving_piece = grid_statee.get(from, null)
+	if moving_piece == null:
+		return true  # Defensive check
+
+	# Simulate position change manually
+	var simulated_state = grid_statee.duplicate()
+	simulated_state.erase(from)
+	simulated_state[to] = moving_piece
+
+	return is_king_in_check(simulated_state)
+
+func is_checkmate():
+	if active_player == 1:
+		if not is_king_in_check(grid_state):
+			return false
+		for piecee in player1_root.get_children():
+			for valid_move in piecee.get_valid_moves_without_capture(grid_state):
+				if not would_be_in_check(grid_state, piecee.grid_pos, valid_move, 1):
+					return false
+		return true
+	elif active_player == 2:
+		if not is_king_in_check(grid_state):
+			return false
+		for piecee in player2_root.get_children():
+			for valid_move in piecee.get_valid_moves_without_capture(grid_state):
+				if not would_be_in_check(grid_state, piecee.grid_pos, valid_move, 1):
+					return false
+		return true
+		
+
+func show_checkmate_notification():
+	if active_player == 1:
+		check_notification_label.text = "Black is Checkmated, red won!"
+	elif active_player == 2:
+		check_notification_label.text = "Red is Checkmated, black won!"
+	check_notification_label.visible = true
+
+func is_position_attacked_by(pos: Vector3i, attacker_id: int, grid_statee: Dictionary) -> bool:
+	for p in grid_statee.values():
+		if p != null and p.owner_id == attacker_id:
+			var attack_moves = p.get_valid_moves_without_capture(grid_statee, true)
+			
+			# Optional: avoid recursion by adding a flag like get_valid_moves(grid_state, ignore_king_safety)
+			if pos in attack_moves:
+				return true
+	return false
+			
+		

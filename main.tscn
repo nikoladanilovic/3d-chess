@@ -26,8 +26,10 @@ camera = NodePath("CameraBoom/Camera3D")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.02639)
 script = ExtResource("3_h2yge")
 
-[node name="GameManager" type="Node3D" parent="." node_paths=PackedStringArray("player1_root", "player2_root")]
+[node name="GameManager" type="Node3D" parent="." node_paths=PackedStringArray("check_notification", "check_notification_label", "player1_root", "player2_root")]
 script = ExtResource("4_1bvp3")
+check_notification = NodePath("../CanvasLayer")
+check_notification_label = NodePath("../CanvasLayer/Label")
 player1_root = NodePath("../PieceContainer/Player1Pieces")
 player2_root = NodePath("../PieceContainer/Player2Pieces")
 
@@ -36,3 +38,12 @@ player2_root = NodePath("../PieceContainer/Player2Pieces")
 [node name="Player1Pieces" type="Node3D" parent="PieceContainer"]
 
 [node name="Player2Pieces" type="Node3D" parent="PieceContainer"]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+offset = Vector2(20, 20)
+scale = Vector2(2, 2)
+transform = Transform2D(2, 0, 0, 2, 20, 20)
+
+[node name="Label" type="Label" parent="CanvasLayer"]
+offset_right = 40.0
+offset_bottom = 23.0
